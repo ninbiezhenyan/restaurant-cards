@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>好友力荐餐厅</title>
+<title>SHY此生必打卡餐厅</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -139,11 +139,26 @@
   .bg-green  { background: linear-gradient(150deg, #A5D6A7 0%, #81C784 50%, #66BB6A 100%); color: #fff; }
   .bg-cyan   { background: linear-gradient(150deg, #80DEEA 0%, #4DD0E1 50%, #26C6DA 100%); color: #fff; }
 
-  /* ===== 餐厅卡片：纯信息 ===== */
+  /* ===== 餐厅卡片：图片 + 信息 ===== */
   .card-restaurant {
-    padding: 20px 18px 18px;
+    overflow: hidden;
+    gap: 0;
+  }
+  .shop-photo {
+    width: 100%;
+    height: 45%;
+    min-height: 140px;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+  }
+  .shop-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-y: auto;
-    gap: 10px;
+    flex: 1;
   }
   .shop-header {
     display: flex;
@@ -327,7 +342,7 @@
 <!-- 顶部导航 -->
 <div class="topbar">
   <div class="icon-btn" id="menuBtn">☰</div>
-  <div class="title">好友力荐<span class="dot">·</span>五店</div>
+  <div class="title">SHY此生必打卡餐厅</div>
   <div class="icon-btn" id="shareBtn">💬</div>
 </div>
 
@@ -343,9 +358,7 @@
 
 <!-- 底部操作栏 -->
 <div class="actions">
-  <div class="action-btn nav" id="btnPrev">◀</div>
   <div class="action-btn like" id="btnNav">📍</div>
-  <div class="action-btn nav" id="btnNext">▶</div>
 </div>
 
 <script>
@@ -353,6 +366,7 @@
 const slides = [
   { type:'category', icon:'🦐', name:'海鲜菜', desc:'新鲜直达 原汁原味<br>金桥商圈品质之选', count:'1家店', color:'blue' },
   { type:'restaurant', icon:'🦐', name:'威海小海鲜', branch:'金高路店', tag:'海鲜', tagClass:'tag-blue',
+    photo:'images/shop_1.jpg',
     price:123, recommender:'联名推荐', avatar:'联',
     addr:'浦东新区金高路2107号（金桥商圈）',
     mapQuery:'浦东新区金高路2107号威海小海鲜',
@@ -364,6 +378,7 @@ const slides = [
   },
   { type:'category', icon:'🍲', name:'东北菜', desc:'锅气十足 量大管饱<br>凌河路·上川路一带', count:'3家店', color:'red' },
   { type:'restaurant', icon:'🍲', name:'龙江顺天福', branch:'金桥店', tag:'东北菜', tagClass:'tag-red',
+    photo:'images/shop_2.jpg',
     price:80, recommender:'申小红', avatar:'申',
     addr:'浦东凌河路（丰华高中东北侧）🚇12号线杨高北路',
     mapQuery:'龙江顺天福东北菜凌河路店',
@@ -374,6 +389,7 @@ const slides = [
     ]
   },
   { type:'restaurant', icon:'🥘', name:'地锅岁月', branch:'凌河路店', tag:'东北菜', tagClass:'tag-red',
+    photo:'images/shop_3.jpg',
     price:91, recommender:'申小红', avatar:'申',
     addr:'浦东新区凌河路576号',
     mapQuery:'浦东新区凌河路576号地锅岁月',
@@ -384,6 +400,7 @@ const slides = [
     ]
   },
   { type:'restaurant', icon:'🔥', name:'薛记·传奇大锅台', branch:'上川路店', tag:'东北菜', tagClass:'tag-red',
+    photo:'images/shop_4.jpg',
     price:106, recommender:'四五六七八次', avatar:'四',
     addr:'浦东新区曹路镇上川路2257号',
     mapQuery:'浦东新区曹路镇上川路2257号传奇大锅台',
@@ -394,6 +411,7 @@ const slides = [
   },
   { type:'category', icon:'🐂', name:'火锅菜', desc:'牛骨慢熬 原汤醇厚<br>张江街边烟火小馆', count:'1家店', color:'brown' },
   { type:'restaurant', icon:'🐂', name:'大成牛肉汤馆', branch:'张江店', tag:'牛肉汤', tagClass:'tag-cyan',
+    photo:'images/shop_5.jpg',
     price:65, recommender:'申小红', avatar:'申',
     addr:'浦东新区张江镇百业路232号一层',
     mapQuery:'浦东新区张江镇百业路232号大成牛肉汤馆',
@@ -450,23 +468,27 @@ function render(instant = false) {
     const featHTML = s.features.map(f =>
       `<span class="shop-feat">${f}</span>`
     ).join('');
+    const photoHTML = s.photo ? `<img class="shop-photo" src="${s.photo}" alt="${s.name}" onerror="this.style.display='none'">` : '';
     card.className = 'card card-restaurant';
     if (!instant) card.classList.add('hidden');
     card.offsetHeight;
     card.innerHTML = `
-      <div class="shop-header">
-        <div class="shop-name">
-          ${s.name} <span class="branch">(${s.branch})</span>
-          <span class="tag ${s.tagClass}">${s.tag}</span>
+      ${photoHTML}
+      <div class="shop-body">
+        <div class="shop-header">
+          <div class="shop-name">
+            ${s.name} <span class="branch">(${s.branch})</span>
+            <span class="tag ${s.tagClass}">${s.tag}</span>
+          </div>
+          <div class="shop-price">¥${s.price}<span>/人</span></div>
         </div>
-        <div class="shop-price">¥${s.price}<span>/人</span></div>
+        <div class="shop-recommender">
+          <span class="avt">${s.avatar}</span> ${s.recommender} 推荐
+        </div>
+        <div class="shop-features">${featHTML}</div>
+        <div class="shop-addr">📍 ${s.addr}</div>
+        <div class="shop-dishes">${dishesHTML}</div>
       </div>
-      <div class="shop-recommender">
-        <span class="avt">${s.avatar}</span> ${s.recommender} 推荐
-      </div>
-      <div class="shop-features">${featHTML}</div>
-      <div class="shop-addr">📍 ${s.addr}</div>
-      <div class="shop-dishes">${dishesHTML}</div>
     `;
   }
 
@@ -575,8 +597,7 @@ window.addEventListener('mouseup', () => {
 });
 
 // ===================== 按钮 =====================
-document.getElementById('btnPrev').addEventListener('click', goPrev);
-document.getElementById('btnNext').addEventListener('click', goNext);
+
 document.getElementById('btnNav').addEventListener('click', () => {
   const s = slides[idx];
   if (s.type === 'restaurant') {
@@ -585,12 +606,12 @@ document.getElementById('btnNav').addEventListener('click', () => {
 });
 
 document.getElementById('menuBtn').addEventListener('click', () => {
-  alert('🍽️ 好友力荐\n共 ' + total + ' 张卡片\n左右滑动浏览\n末页自动回到首页');
+  alert('🍽️ SHY此生必打卡餐厅\n共 ' + total + ' 张卡片\n左右滑动浏览\n末页自动回到首页');
 });
 document.getElementById('shareBtn').addEventListener('click', () => {
   const url = location.href;
   if (navigator.share) {
-    navigator.share({ title: '好友力荐餐厅', url });
+    navigator.share({ title: 'SHY此生必打卡餐厅', url });
   } else {
     navigator.clipboard.writeText(url).then(() => alert('链接已复制')).catch(() => alert(url));
   }
