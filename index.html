@@ -28,7 +28,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px;
+    padding: 0 12px;
     z-index: 100;
   }
   .topbar .icon-btn {
@@ -38,22 +38,47 @@
     font-size: 18px;
     cursor: pointer;
     border-radius: 50%;
+    flex-shrink: 0;
   }
   .topbar .icon-btn:active { background: #F5F5F5; }
   .topbar .title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 1px;
     color: #1A1A1A;
+    white-space: nowrap;
   }
-  .topbar .title .dot { color: #FF4458; }
+
+  /* 模式切换按钮 */
+  .mode-toggle {
+    display: flex;
+    background: #F3F3F3;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .mode-toggle .mode-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    color: #999;
+    border: none;
+    outline: none;
+    white-space: nowrap;
+  }
+  .mode-toggle .mode-btn.active {
+    background: #FF4458;
+    color: #fff;
+  }
 
   /* ===== 主舞台 ===== */
   .stage {
     position: absolute;
     top: 50px;
     left: 0; right: 0;
-    bottom: 90px;
+    bottom: 110px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,32 +94,36 @@
     min-height: 280px;
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
   }
 
-  /* ===== 卡片容器 ===== */
+  /* ===== 卡片 ===== */
   .card {
     position: absolute;
     inset: 0;
     border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: #FFF5F6;
+    box-shadow: 0 4px 20px rgba(255,68,88,0.06);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: opacity 0.35s ease, transform 0.35s ease;
     opacity: 1;
     cursor: grab;
+    border: 1px solid #FFE8EA;
   }
   .card.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
   .card.swiping { transition: none; cursor: grabbing; }
 
-  /* ===== 类目卡片：整卡渐变 + emoji + 名字居中 ===== */
+  /* ===== 类目卡片 ===== */
   .card-category {
     justify-content: center;
     align-items: center;
     padding: 0;
+    background: #FFF5F6 !important;
+    border: 2px solid #FFE0E3;
   }
   .cat-bg {
     position: absolute;
@@ -109,17 +138,18 @@
   .cat-emoji {
     font-size: 80px;
     line-height: 1;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 4px 8px rgba(255,68,88,0.12));
   }
   .cat-name {
     font-size: 28px;
     font-weight: 800;
     letter-spacing: 2px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    color: #FF4458;
+    text-shadow: 0 1px 3px rgba(255,68,88,0.06);
   }
   .cat-desc {
     font-size: 13px;
-    opacity: 0.75;
+    color: #996666;
     line-height: 1.6;
     text-align: center;
     max-width: 220px;
@@ -127,22 +157,15 @@
   .cat-count {
     margin-top: 4px;
     font-size: 13px;
-    opacity: 0.65;
+    color: #CC8888;
     letter-spacing: 1px;
   }
 
-  /* 渐变背景 */
-  .bg-blue   { background: linear-gradient(150deg, #74C0FC 0%, #4FC3F7 40%, #29B6F6 100%); color: #fff; }
-  .bg-red    { background: linear-gradient(150deg, #FF8A80 0%, #FF6B6B 40%, #FF5252 100%); color: #fff; }
-  .bg-brown  { background: linear-gradient(150deg, #BCAAA4 0%, #A1887F 50%, #8D6E63 100%); color: #fff; }
-  .bg-orange { background: linear-gradient(150deg, #FFCC80 0%, #FFB74D 40%, #FF9800 100%); color: #fff; }
-  .bg-green  { background: linear-gradient(150deg, #A5D6A7 0%, #81C784 50%, #66BB6A 100%); color: #fff; }
-  .bg-cyan   { background: linear-gradient(150deg, #80DEEA 0%, #4DD0E1 50%, #26C6DA 100%); color: #fff; }
-
-  /* ===== 餐厅卡片：图片 + 信息 ===== */
+  /* ===== 餐厅卡片 ===== */
   .card-restaurant {
     overflow: hidden;
     gap: 0;
+    background: #FFF5F6;
   }
   .shop-photo {
     width: 100%;
@@ -159,6 +182,7 @@
     gap: 8px;
     overflow-y: auto;
     flex: 1;
+    background: #FFF5F6;
   }
   .shop-header {
     display: flex;
@@ -225,7 +249,7 @@
   .shop-feat {
     font-size: 11px;
     color: #888;
-    background: #F7F7F7;
+    background: #FFF0F2;
     padding: 2px 8px;
     border-radius: 10px;
   }
@@ -247,8 +271,8 @@
     font-size: 12px;
     padding: 3px 9px;
     border-radius: 12px;
-    background: #F5F5F5;
-    color: #666;
+    background: #FFEFF1;
+    color: #996666;
   }
   .dish.hot {
     background: #FFF0F0;
@@ -259,15 +283,30 @@
   /* 标签色 */
   .tag-blue   { background: #039BE5 !important; }
   .tag-red    { background: #FF6B6B !important; }
-  .tag-green  { background: #8BC34A !important; }
   .tag-orange { background: #FF9800 !important; }
-  .tag-brown  { background: #8D6E63 !important; }
   .tag-cyan   { background: #00ACC1 !important; }
+
+  /* ===== 提示语 ===== */
+  .toast {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 700;
+    color: #FF4458;
+    opacity: 0;
+    transition: opacity 0.4s;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
 
   /* ===== 进度圆点 ===== */
   .dots {
     position: fixed;
-    bottom: 80px;
+    bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -277,7 +316,7 @@
   .dot {
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: #DDD;
+    background: #FFD0D5;
     transition: background 0.3s, transform 0.3s;
   }
   .dot.on {
@@ -289,52 +328,64 @@
   .actions {
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    height: 80px;
+    height: 100px;
     background: #fff;
     border-top: 1px solid #F0F0F0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 28px;
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 100;
   }
 
   .action-btn {
-    width: 48px; height: 48px;
+    width: 56px; height: 56px;
     border-radius: 50%;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-    border: 1px solid #EEE;
-    font-size: 18px;
+    box-shadow: 0 3px 12px rgba(255,68,88,0.08);
+    border: 1px solid #FFE0E3;
+    font-size: 22px;
     transition: transform 0.12s, box-shadow 0.12s;
+    color: #FF4458;
   }
   .action-btn:active { transform: scale(0.9); }
-  .action-btn.nope { color: #AAA; }
-  .action-btn.like { color: #FF4458; border-color: #FFE0E3; font-size: 20px; }
-  .action-btn.nav { color: #666; }
 
-  /* ===== 已看完提示 ===== */
-  .done-msg {
-    position: absolute;
-    inset: 0;
+  .action-btn.random-btn {
+    font-size: 16px;
+    font-weight: 700;
+    width: auto;
+    padding: 0 28px;
+    border-radius: 28px;
+    gap: 6px;
+  }
+  .action-btn.random-btn .btn-icon { font-size: 20px; }
+
+  .action-btn.hiding { opacity: 0; transform: scale(0.8); pointer-events: none; }
+
+  /* ===== 随机动画覆盖层 ===== */
+  .spin-overlay {
+    position: fixed;
+    top: 50px;
+    left: 0; right: 0; bottom: 100px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #999;
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 0.4s;
+    z-index: 90;
+    opacity: 0;
+    transition: opacity 0.15s;
   }
-  .done-msg.show { opacity: 1; }
-  .done-msg .emoji { font-size: 60px; margin-bottom: 16px; }
-  .done-msg .txt { font-size: 16px; font-weight: 600; }
-  .done-msg .sub { font-size: 12px; margin-top: 4px; }
+  .spin-overlay.active { opacity: 1; }
+  .spin-count {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FF4458;
+    text-shadow: 0 2px 16px rgba(255,68,88,0.2);
+  }
 </style>
 </head>
 <body>
@@ -343,13 +394,17 @@
 <div class="topbar">
   <div class="icon-btn" id="menuBtn">☰</div>
   <div class="title">SHY此生必打卡餐厅</div>
-  <div class="icon-btn" id="shareBtn">💬</div>
+  <div class="mode-toggle" id="modeToggle">
+    <button class="mode-btn active" data-mode="xinyi">心仪版</button>
+    <button class="mode-btn" data-mode="suixin">随心版</button>
+  </div>
 </div>
 
 <!-- 卡片舞台 -->
 <div class="stage">
   <div class="card-wrapper" id="wrapper">
     <div class="card" id="card"></div>
+    <div class="toast" id="toast"></div>
   </div>
 </div>
 
@@ -358,13 +413,13 @@
 
 <!-- 底部操作栏 -->
 <div class="actions">
-  <div class="action-btn like" id="btnNav">📍</div>
+  <div class="action-btn" id="btnNav">📍</div>
 </div>
 
 <script>
 // ===================== 数据 =====================
 const slides = [
-  { type:'category', icon:'🦐', name:'海鲜菜', desc:'新鲜直达 原汁原味<br>金桥商圈品质之选', count:'1家店', color:'blue' },
+  { type:'category', icon:'🦐', name:'海鲜菜', desc:'新鲜直达 原汁原味<br>金桥商圈品质之选', count:'1家店' },
   { type:'restaurant', icon:'🦐', name:'威海小海鲜', branch:'金高路店', tag:'海鲜', tagClass:'tag-blue',
     photo:'images/shop_1.jpg',
     price:123, recommender:'联名推荐', avatar:'联',
@@ -376,7 +431,7 @@ const slides = [
       {name:'舌头鱼'},{name:'白灼虾'},{name:'辣炒蛤蜊'},{name:'海鲜拼盘'}
     ]
   },
-  { type:'category', icon:'🍲', name:'东北菜', desc:'锅气十足 量大管饱<br>凌河路·上川路一带', count:'3家店', color:'red' },
+  { type:'category', icon:'🍲', name:'东北菜', desc:'锅气十足 量大管饱<br>凌河路·上川路一带', count:'3家店' },
   { type:'restaurant', icon:'🍲', name:'龙江顺天福', branch:'金桥店', tag:'东北菜', tagClass:'tag-red',
     photo:'images/shop_2.jpg',
     price:80, recommender:'申小红', avatar:'申',
@@ -409,7 +464,7 @@ const slides = [
       {name:'招牌地锅鸡（现炒）',hl:1},{name:'地锅鸡双人餐 ¥99',hl:1},{name:'排骨锅'},{name:'贴饼子'}
     ]
   },
-  { type:'category', icon:'🐂', name:'火锅菜', desc:'牛骨慢熬 原汤醇厚<br>张江街边烟火小馆', count:'1家店', color:'brown' },
+  { type:'category', icon:'🐂', name:'火锅菜', desc:'牛骨慢熬 原汤醇厚<br>张江街边烟火小馆', count:'1家店' },
   { type:'restaurant', icon:'🐂', name:'大成牛肉汤馆', branch:'张江店', tag:'牛肉汤', tagClass:'tag-cyan',
     photo:'images/shop_5.jpg',
     price:65, recommender:'申小红', avatar:'申',
@@ -422,13 +477,22 @@ const slides = [
   }
 ];
 
+// 仅餐厅卡片索引
+const restaurantIndices = [];
+slides.forEach((s, i) => { if (s.type === 'restaurant') restaurantIndices.push(i); });
+
 // ===================== 状态 =====================
+let mode = 'xinyi'; // 'xinyi' | 'suixin'
 let idx = 0;
+let randomCount = 0;
+let isSpinning = false;
 const total = slides.length;
 const card = document.getElementById('card');
 const dotsEl = document.getElementById('dots');
+const btnNav = document.getElementById('btnNav');
+const toast = document.getElementById('toast');
 
-// 建圆点
+// ===================== 圆点 =====================
 function buildDots() {
   dotsEl.innerHTML = '';
   for (let i = 0; i < total; i++) {
@@ -437,11 +501,23 @@ function buildDots() {
     dotsEl.appendChild(d);
   }
 }
-
 function updateDots() {
   dotsEl.querySelectorAll('.dot').forEach((d, i) => {
     d.className = 'dot' + (i === idx ? ' on' : '');
   });
+}
+
+// ===================== 提示语 =====================
+function showToast(msg, duration = 2000) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  if (duration > 0) {
+    toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+  }
+}
+function hideToast() {
+  toast.classList.remove('show');
 }
 
 // ===================== 渲染 =====================
@@ -450,9 +526,9 @@ function render(instant = false) {
   if (!s) return;
 
   if (s.type === 'category') {
-    card.className = 'card card-category bg-' + s.color;
+    card.className = 'card card-category';
     if (!instant) card.classList.add('hidden');
-    card.offsetHeight; // force reflow
+    card.offsetHeight;
     card.innerHTML = `
       <div class="cat-bg">
         <div class="cat-emoji">${s.icon}</div>
@@ -499,13 +575,12 @@ function render(instant = false) {
     });
   }
   updateDots();
+  hideToast();
 }
 
-// ===================== 导航（带渐隐 + 循环） =====================
+// ===================== 导航 =====================
 function goTo(newIdx, dir = 0) {
-  if (newIdx === idx) return;
-
-  // 渐隐当前
+  if (newIdx === idx || isSpinning) return;
   card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
   card.style.opacity = '0';
   card.style.transform = `scale(0.96) translateX(${dir * 30}px)`;
@@ -517,8 +592,6 @@ function goTo(newIdx, dir = 0) {
     card.style.transform = `scale(0.96) translateX(${-dir * 30}px)`;
     render(true);
     card.offsetHeight;
-
-    // 渐显新卡
     requestAnimationFrame(() => {
       card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
       card.style.opacity = '1';
@@ -529,18 +602,68 @@ function goTo(newIdx, dir = 0) {
 }
 
 function goNext() {
-  const nxt = (idx + 1) % total;
-  goTo(nxt, 1);
+  if (mode === 'xinyi') {
+    const nxt = (idx + 1) % total;
+    goTo(nxt, 1);
+  }
 }
 function goPrev() {
-  const prv = (idx - 1 + total) % total;
-  goTo(prv, -1);
+  if (mode === 'xinyi') {
+    const prv = (idx - 1 + total) % total;
+    goTo(prv, -1);
+  }
 }
 
-// ===================== 触屏滑动 =====================
+// ===================== 随机模式 =====================
+function randomSpin() {
+  if (isSpinning) return;
+  isSpinning = true;
+  hideToast();
+
+  btnNav.style.pointerEvents = 'none';
+  const duration = 2000;
+  const interval = 80;
+  const steps = Math.floor(duration / interval);
+  let step = 0;
+
+  const spinTimer = setInterval(() => {
+    step++;
+    // 快速切换所有 slides
+    idx = restaurantIndices[Math.floor(Math.random() * restaurantIndices.length)];
+    render(true);
+    card.style.transition = 'none';
+
+    if (step >= steps) {
+      clearInterval(spinTimer);
+      // 最终随机停在一个餐厅卡片上
+      const finalIdx = restaurantIndices[Math.floor(Math.random() * restaurantIndices.length)];
+      idx = finalIdx;
+      card.style.transition = 'opacity 0.3s ease';
+      card.style.opacity = '0';
+      setTimeout(() => {
+        render(true);
+        card.style.opacity = '1';
+        card.style.transition = '';
+
+        randomCount++;
+        if (randomCount >= 3) {
+          showToast('好难选啊~', 0);
+        } else {
+          showToast('我中意你啦！', 0);
+        }
+
+        isSpinning = false;
+        btnNav.style.pointerEvents = '';
+      }, 300);
+    }
+  }, interval);
+}
+
+// ===================== 触屏 =====================
 let startX = 0, dx = 0, dragging = false;
 
 card.addEventListener('touchstart', e => {
+  if (mode === 'suixin' || isSpinning) return;
   startX = e.touches[0].clientX; dx = 0; dragging = true;
   card.classList.add('swiping');
 }, {passive: true});
@@ -548,7 +671,7 @@ card.addEventListener('touchstart', e => {
 card.addEventListener('touchmove', e => {
   if (!dragging) return;
   dx = e.touches[0].clientX - startX;
-  const limit = 0.5; // 阻止拖动过半
+  const limit = 0.5;
   const clamped = Math.max(-card.offsetWidth * limit, Math.min(card.offsetWidth * limit, dx)) / (card.offsetWidth * limit);
   card.style.transform = `translateX(${clamped * 40}px) scale(${1 - Math.abs(clamped) * 0.04})`;
   card.style.opacity = 1 - Math.abs(clamped) * 0.5;
@@ -558,28 +681,26 @@ card.addEventListener('touchend', () => {
   if (!dragging) return;
   dragging = false;
   card.classList.remove('swiping');
-
   if (dx < -50) goNext();
   else if (dx > 50) goPrev();
   else {
     card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    card.style.opacity = '1';
-    card.style.transform = '';
+    card.style.opacity = '1'; card.style.transform = '';
     setTimeout(() => { card.style.transition = ''; }, 300);
   }
 });
 
 // 鼠标
 card.addEventListener('mousedown', e => {
+  if (mode === 'suixin' || isSpinning) return;
   e.preventDefault(); startX = e.clientX; dx = 0; dragging = true;
   card.classList.add('swiping');
 });
 window.addEventListener('mousemove', e => {
   if (!dragging) return;
   dx = e.clientX - startX;
-  const limit = 0.5;
   const w = card.offsetWidth;
-  const clamped = Math.max(-w * limit, Math.min(w * limit, dx)) / (w * limit);
+  const clamped = Math.max(-w * 0.5, Math.min(w * 0.5, dx)) / (w * 0.5);
   card.style.transform = `translateX(${clamped * 40}px) scale(${1 - Math.abs(clamped) * 0.04})`;
   card.style.opacity = 1 - Math.abs(clamped) * 0.5;
 });
@@ -596,19 +717,59 @@ window.addEventListener('mouseup', () => {
   }
 });
 
-// ===================== 按钮 =====================
+// ===================== 模式切换 =====================
+function switchMode(newMode) {
+  if (newMode === mode || isSpinning) return;
+  mode = newMode;
+  randomCount = 0;
+  hideToast();
 
-document.getElementById('btnNav').addEventListener('click', () => {
-  const s = slides[idx];
-  if (s.type === 'restaurant') {
-    window.open(`https://www.amap.com/search?query=${encodeURIComponent(s.mapQuery)}`, '_blank');
+  // 更新切换按钮状态
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+
+  // 更新底部按钮
+  if (mode === 'suixin') {
+    btnNav.innerHTML = '<span class="btn-icon">🎲</span> 随机';
+    btnNav.className = 'action-btn random-btn';
+    dotsEl.style.opacity = '0.3';
+  } else {
+    btnNav.innerHTML = '📍';
+    btnNav.className = 'action-btn';
+    dotsEl.style.opacity = '1';
+  }
+
+  // 切到随心版时，确保当前在餐厅卡
+  if (mode === 'suixin' && !restaurantIndices.includes(idx)) {
+    idx = restaurantIndices[0];
+    render(true);
+    card.style.opacity = '1';
+    card.style.transition = '';
+  }
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+// ===================== 按钮 =====================
+btnNav.addEventListener('click', () => {
+  if (mode === 'suixin') {
+    randomSpin();
+  } else {
+    const s = slides[idx];
+    if (s.type === 'restaurant') {
+      window.open(`https://www.amap.com/search?query=${encodeURIComponent(s.mapQuery)}`, '_blank');
+    }
   }
 });
 
 document.getElementById('menuBtn').addEventListener('click', () => {
-  alert('🍽️ SHY此生必打卡餐厅\n共 ' + total + ' 张卡片\n左右滑动浏览\n末页自动回到首页');
+  alert('🍽️ SHY此生必打卡餐厅\n共 ' + total + ' 张卡片\n心仪版：左右滑动浏览\n随心版：点击随机帮你选');
 });
-document.getElementById('shareBtn').addEventListener('click', () => {
+
+document.getElementById('shareBtn') && document.getElementById('shareBtn').addEventListener('click', () => {
   const url = location.href;
   if (navigator.share) {
     navigator.share({ title: 'SHY此生必打卡餐厅', url });
@@ -617,7 +778,7 @@ document.getElementById('shareBtn').addEventListener('click', () => {
   }
 });
 
-// 启动
+// ===================== 启动 =====================
 buildDots();
 render(true);
 </script>
