@@ -18,6 +18,29 @@
     user-select: none;
   }
 
+  /* ===== 启动 Splash ===== */
+  .splash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .splash.show { opacity: 1; }
+  .splash .splash-text {
+    font-size: 26px;
+    font-weight: 700;
+    color: #FF8A90;
+    letter-spacing: 2px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(255,138,144,0.15);
+    padding: 0 20px;
+  }
+
   /* ===== 顶部导航 ===== */
   .topbar {
     position: fixed;
@@ -78,7 +101,7 @@
     position: absolute;
     top: 50px;
     left: 0; right: 0;
-    bottom: 110px;
+    bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -116,6 +139,7 @@
   }
   .card.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
   .card.swiping { transition: none; cursor: grabbing; }
+  .card.no-card { display: none; }
 
   /* ===== 类目卡片 ===== */
   .card-category {
@@ -286,10 +310,10 @@
   .tag-orange { background: #FF9800 !important; }
   .tag-cyan   { background: #00ACC1 !important; }
 
-  /* ===== 提示语 ===== */
+  /* ===== 提示语 — 卡片上方 ===== */
   .toast {
     position: absolute;
-    bottom: 8px;
+    top: -38px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 14px;
@@ -306,7 +330,7 @@
   /* ===== 进度圆点 ===== */
   .dots {
     position: fixed;
-    bottom: 100px;
+    bottom: 94px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -328,7 +352,7 @@
   .actions {
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    height: 100px;
+    height: 88px;
     background: #fff;
     border-top: 1px solid #F0F0F0;
     display: flex;
@@ -336,7 +360,9 @@
     justify-content: center;
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 100;
+    transition: opacity 0.3s;
   }
+  .actions.hidden { opacity: 0; pointer-events: none; }
 
   .action-btn {
     width: 56px; height: 56px;
@@ -354,41 +380,41 @@
   }
   .action-btn:active { transform: scale(0.9); }
 
-  .action-btn.random-btn {
-    font-size: 16px;
-    font-weight: 700;
-    width: auto;
-    padding: 0 28px;
-    border-radius: 28px;
-    gap: 6px;
-  }
-  .action-btn.random-btn .btn-icon { font-size: 20px; }
-
-  .action-btn.hiding { opacity: 0; transform: scale(0.8); pointer-events: none; }
-
-  /* ===== 随机动画覆盖层 ===== */
-  .spin-overlay {
-    position: fixed;
-    top: 50px;
-    left: 0; right: 0; bottom: 100px;
-    display: flex;
+  /* ===== 骰子按钮 — 居中放大 ===== */
+  .dice-btn {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 110;
+    display: none;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
-    z-index: 90;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .spin-overlay.active { opacity: 1; }
-  .spin-count {
-    font-size: 72px;
-    font-weight: 900;
+    gap: 8px;
+    cursor: pointer;
+    width: auto;
+    padding: 16px 36px;
+    border-radius: 32px;
+    background: #fff;
+    border: 2px solid #FFE0E3;
+    box-shadow: 0 4px 20px rgba(255,68,88,0.1);
+    font-size: 18px;
+    font-weight: 700;
     color: #FF4458;
-    text-shadow: 0 2px 16px rgba(255,68,88,0.2);
+    letter-spacing: 1px;
+    transition: transform 0.15s;
   }
+  .dice-btn.show { display: flex; }
+  .dice-btn:active { transform: translateX(-50%) scale(0.92); }
+  .dice-btn .dice-icon { font-size: 28px; }
 </style>
 </head>
 <body>
+
+<!-- Splash 闪屏 -->
+<div class="splash" id="splash">
+  <div class="splash-text" id="splashText"></div>
+</div>
 
 <!-- 顶部导航 -->
 <div class="topbar">
@@ -411,8 +437,13 @@
 <!-- 进度圆点 -->
 <div class="dots" id="dots"></div>
 
-<!-- 底部操作栏 -->
-<div class="actions">
+<!-- 骰子按钮 — 随心版居中 -->
+<div class="dice-btn" id="diceBtn">
+  <span class="dice-icon">🎲</span> 随 机
+</div>
+
+<!-- 底部操作栏（仅心仪版使用） -->
+<div class="actions" id="actionsBar">
   <div class="action-btn" id="btnNav">📍</div>
 </div>
 
@@ -477,20 +508,44 @@ const slides = [
   }
 ];
 
-// 仅餐厅卡片索引
 const restaurantIndices = [];
 slides.forEach((s, i) => { if (s.type === 'restaurant') restaurantIndices.push(i); });
 
 // ===================== 状态 =====================
-let mode = 'xinyi'; // 'xinyi' | 'suixin'
+let mode = 'xinyi';
 let idx = 0;
 let randomCount = 0;
 let isSpinning = false;
 const total = slides.length;
 const card = document.getElementById('card');
 const dotsEl = document.getElementById('dots');
+const actionsBar = document.getElementById('actionsBar');
 const btnNav = document.getElementById('btnNav');
+const diceBtn = document.getElementById('diceBtn');
 const toast = document.getElementById('toast');
+
+// ===================== Splash =====================
+(function initSplash() {
+  const phrases = [
+    '呦~你也是吃货？',
+    '万水千山总是情，这顿不吃很难行！',
+    '组队吗？',
+    '我们一直在追寻路上！',
+    'V me fifty yuan我立马去！'
+  ];
+  const splash = document.getElementById('splash');
+  const splashText = document.getElementById('splashText');
+  const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+  splashText.textContent = phrase;
+  // 显示
+  requestAnimationFrame(() => {
+    splash.classList.add('show');
+  });
+  // 1秒后隐掉
+  setTimeout(() => {
+    splash.classList.remove('show');
+  }, 1000);
+})();
 
 // ===================== 圆点 =====================
 function buildDots() {
@@ -578,7 +633,7 @@ function render(instant = false) {
   hideToast();
 }
 
-// ===================== 导航 =====================
+// ===================== 导航（心仪版） =====================
 function goTo(newIdx, dir = 0) {
   if (newIdx === idx || isSpinning) return;
   card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
@@ -614,52 +669,79 @@ function goPrev() {
   }
 }
 
-// ===================== 随机模式 =====================
+// ===================== 随机模式（随心版） =====================
 function randomSpin() {
   if (isSpinning) return;
   isSpinning = true;
   hideToast();
 
-  btnNav.style.pointerEvents = 'none';
-  const duration = 2000;
-  const interval = 80;
+  diceBtn.style.pointerEvents = 'none';
+  diceBtn.style.opacity = '0.6';
+
+  // 显示卡片
+  card.classList.remove('no-card');
+  card.classList.remove('hidden');
+  card.style.opacity = '1';
+  card.style.transform = '';
+  card.style.transition = 'none';
+
+  const duration = 1800;
+  const interval = 70;
   const steps = Math.floor(duration / interval);
   let step = 0;
 
   const spinTimer = setInterval(() => {
     step++;
-    // 快速切换所有 slides
-    idx = restaurantIndices[Math.floor(Math.random() * restaurantIndices.length)];
+    const rIdx = restaurantIndices[Math.floor(Math.random() * restaurantIndices.length)];
+    idx = rIdx;
     render(true);
     card.style.transition = 'none';
+    card.style.opacity = '1';
+    card.style.transform = '';
 
     if (step >= steps) {
       clearInterval(spinTimer);
-      // 最终随机停在一个餐厅卡片上
+
+      // 最终随机目标
       const finalIdx = restaurantIndices[Math.floor(Math.random() * restaurantIndices.length)];
       idx = finalIdx;
-      card.style.transition = 'opacity 0.3s ease';
-      card.style.opacity = '0';
-      setTimeout(() => {
-        render(true);
-        card.style.opacity = '1';
-        card.style.transition = '';
+      render(true);
+      card.style.opacity = '1';
+      card.style.transform = '';
+      card.style.transition = 'none';
+      card.offsetHeight;
 
-        randomCount++;
-        if (randomCount >= 3) {
-          showToast('好难选啊~', 0);
-        } else {
-          showToast('我中意你啦！', 0);
-        }
+      // 停留效果：左滑快消失 → 弹回来定格
+      requestAnimationFrame(() => {
+        card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+        card.style.opacity = '0.15';
+        card.style.transform = 'translateX(-80px) scale(0.92)';
 
-        isSpinning = false;
-        btnNav.style.pointerEvents = '';
-      }, 300);
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+          card.style.opacity = '1';
+          card.style.transform = '';
+
+          randomCount++;
+          if (randomCount >= 3) {
+            showToast('好难选啊~', 0);
+          } else {
+            showToast('我中意你啦！', 0);
+          }
+
+          setTimeout(() => {
+            isSpinning = false;
+            diceBtn.style.pointerEvents = '';
+            diceBtn.style.opacity = '1';
+            card.style.transition = '';
+          }, 500);
+        }, 350);
+      });
     }
   }, interval);
 }
 
-// ===================== 触屏 =====================
+// ===================== 触屏（心仪版） =====================
 let startX = 0, dx = 0, dragging = false;
 
 card.addEventListener('touchstart', e => {
@@ -724,25 +806,30 @@ function switchMode(newMode) {
   randomCount = 0;
   hideToast();
 
-  // 更新切换按钮状态
   document.querySelectorAll('.mode-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
 
-  // 更新底部按钮
   if (mode === 'suixin') {
-    btnNav.innerHTML = '<span class="btn-icon">🎲</span> 随机';
-    btnNav.className = 'action-btn random-btn';
+    // 隐藏卡片 + 底部栏
+    card.classList.add('no-card');
+    card.classList.remove('hidden');
+    card.style.opacity = '';
+    card.style.transform = '';
+    card.style.transition = '';
+    actionsBar.classList.add('hidden');
+    diceBtn.classList.add('show');
     dotsEl.style.opacity = '0.3';
+    // 舞台拉满（无底部栏）
+    document.querySelector('.stage').style.bottom = '0';
   } else {
-    btnNav.innerHTML = '📍';
-    btnNav.className = 'action-btn';
+    // 心仪版：显示卡片 + 底部栏
+    card.classList.remove('no-card');
+    actionsBar.classList.remove('hidden');
+    diceBtn.classList.remove('show');
     dotsEl.style.opacity = '1';
-  }
-
-  // 切到随心版时，确保当前在餐厅卡
-  if (mode === 'suixin' && !restaurantIndices.includes(idx)) {
-    idx = restaurantIndices[0];
+    document.querySelector('.stage').style.bottom = '0';
+    idx = 0;
     render(true);
     card.style.opacity = '1';
     card.style.transition = '';
@@ -753,11 +840,12 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => switchMode(btn.dataset.mode));
 });
 
-// ===================== 按钮 =====================
+// ===================== 骰子按钮 =====================
+diceBtn.addEventListener('click', randomSpin);
+
+// ===================== 心仪版导航按钮 =====================
 btnNav.addEventListener('click', () => {
-  if (mode === 'suixin') {
-    randomSpin();
-  } else {
+  if (mode === 'xinyi') {
     const s = slides[idx];
     if (s.type === 'restaurant') {
       window.open(`https://www.amap.com/search?query=${encodeURIComponent(s.mapQuery)}`, '_blank');
@@ -767,15 +855,6 @@ btnNav.addEventListener('click', () => {
 
 document.getElementById('menuBtn').addEventListener('click', () => {
   alert('🍽️ SHY此生必打卡餐厅\n共 ' + total + ' 张卡片\n心仪版：左右滑动浏览\n随心版：点击随机帮你选');
-});
-
-document.getElementById('shareBtn') && document.getElementById('shareBtn').addEventListener('click', () => {
-  const url = location.href;
-  if (navigator.share) {
-    navigator.share({ title: 'SHY此生必打卡餐厅', url });
-  } else {
-    navigator.clipboard.writeText(url).then(() => alert('链接已复制')).catch(() => alert(url));
-  }
 });
 
 // ===================== 启动 =====================
