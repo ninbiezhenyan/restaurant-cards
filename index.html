@@ -596,8 +596,9 @@ function randomSpin() {
   isSpinning = true;
   hideToast();
 
-  diceBtn.style.pointerEvents = 'none';
-  diceBtn.style.opacity = '0.6';
+  // 骰子立即消失
+  diceBtn.classList.remove('show');
+  diceBtn.classList.remove('below');
 
   // 显示卡片
   card.classList.remove('no-card');
@@ -648,13 +649,11 @@ function randomSpin() {
             showToast('我中意你啦！', 0);
           }
 
-          // 骰子移到卡片下方
-          diceBtn.classList.add('below');
+          // 骰子移到卡片下方并重新显示
+          diceBtn.classList.add('below', 'show');
 
           setTimeout(() => {
             isSpinning = false;
-            diceBtn.style.pointerEvents = '';
-            diceBtn.style.opacity = '1';
             card.style.transition = '';
           }, 500);
         }, 350);
