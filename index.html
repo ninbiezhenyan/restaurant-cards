@@ -22,7 +22,7 @@
   .topbar {
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 56px;
+    height: 50px;
     background: #fff;
     border-bottom: 1px solid #F0F0F0;
     display: flex;
@@ -32,135 +32,164 @@
     z-index: 100;
   }
   .topbar .icon-btn {
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
     color: #555;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  .topbar .title {
     font-size: 18px;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .topbar .icon-btn:active { background: #F5F5F5; }
+  .topbar .title {
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 1px;
     color: #1A1A1A;
   }
   .topbar .title .dot { color: #FF4458; }
 
-  /* ===== 卡片舞台 ===== */
+  /* ===== 主舞台 ===== */
   .stage {
     position: absolute;
-    top: 56px;
+    top: 50px;
     left: 0; right: 0;
-    bottom: 110px;
+    bottom: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: 16px;
   }
 
-  .card-deck {
+  .card-wrapper {
+    width: 100%;
+    max-width: 360px;
+    height: 50vh;
+    max-height: 420px;
+    min-height: 280px;
     position: relative;
-    width: calc(100% - 24px);
-    max-width: 420px;
-    height: 100%;
-    max-height: 640px;
-  }
-
-  /* ===== 单张卡片（占位底层 + 顶卡） ===== */
-  .bg-card {
-    position: absolute;
-    inset: 0;
-    border-radius: 18px;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    transform: scale(0.96) translateY(8px);
-    opacity: 0.7;
-  }
-  .bg-card.deep {
-    transform: scale(0.92) translateY(16px);
-    opacity: 0.4;
-  }
-
-  .tinder-card {
-    position: absolute;
-    inset: 0;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
-    cursor: grab;
-    will-change: transform;
-    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.3s ease;
-  }
-  .tinder-card.swiping { transition: none; cursor: grabbing; }
-
-  /* 顶部"照片"区：渐变 + 大 emoji */
-  .card-photo {
-    height: 62%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
   }
-  .card-photo .emoji-big {
-    font-size: 130px;
-    line-height: 1;
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
-  }
-  .photo-badge {
+
+  /* ===== 卡片容器 ===== */
+  .card {
     position: absolute;
-    top: 16px; right: 16px;
-    background: rgba(255,255,255,0.92);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #555;
-    backdrop-filter: blur(6px);
-  }
-
-  /* 类别卡片的背景渐变 */
-  .photo-blue   { background: linear-gradient(135deg, #74C0FC 0%, #4FC3F7 50%, #29B6F6 100%); }
-  .photo-red    { background: linear-gradient(135deg, #FF8A80 0%, #FF6B6B 50%, #FF5252 100%); }
-  .photo-brown  { background: linear-gradient(135deg, #BCAAA4 0%, #A1887F 50%, #8D6E63 100%); }
-  .photo-orange { background: linear-gradient(135deg, #FFCC80 0%, #FFB74D 50%, #FF9800 100%); }
-  .photo-green  { background: linear-gradient(135deg, #A5D6A7 0%, #81C784 50%, #66BB6A 100%); }
-  .photo-pink   { background: linear-gradient(135deg, #F8BBD0 0%, #F48FB1 50%, #EC407A 100%); }
-  .photo-cyan   { background: linear-gradient(135deg, #80DEEA 0%, #4DD0E1 50%, #26C6DA 100%); }
-
-  /* 底部信息区 */
-  .card-info {
-    height: 38%;
-    padding: 18px 20px 16px;
+    inset: 0;
+    border-radius: 16px;
     background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    opacity: 1;
+    cursor: grab;
+  }
+  .card.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+  .card.swiping { transition: none; cursor: grabbing; }
+
+  /* ===== 类目卡片：整卡渐变 + emoji + 名字居中 ===== */
+  .card-category {
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+  .cat-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px;
+  }
+  .cat-emoji {
+    font-size: 80px;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  }
+  .cat-name {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .cat-desc {
+    font-size: 13px;
+    opacity: 0.75;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 220px;
+  }
+  .cat-count {
+    margin-top: 4px;
+    font-size: 13px;
+    opacity: 0.65;
+    letter-spacing: 1px;
   }
 
-  .info-title {
-    font-size: 22px;
+  /* 渐变背景 */
+  .bg-blue   { background: linear-gradient(150deg, #74C0FC 0%, #4FC3F7 40%, #29B6F6 100%); color: #fff; }
+  .bg-red    { background: linear-gradient(150deg, #FF8A80 0%, #FF6B6B 40%, #FF5252 100%); color: #fff; }
+  .bg-brown  { background: linear-gradient(150deg, #BCAAA4 0%, #A1887F 50%, #8D6E63 100%); color: #fff; }
+  .bg-orange { background: linear-gradient(150deg, #FFCC80 0%, #FFB74D 40%, #FF9800 100%); color: #fff; }
+  .bg-green  { background: linear-gradient(150deg, #A5D6A7 0%, #81C784 50%, #66BB6A 100%); color: #fff; }
+  .bg-cyan   { background: linear-gradient(150deg, #80DEEA 0%, #4DD0E1 50%, #26C6DA 100%); color: #fff; }
+
+  /* ===== 餐厅卡片：纯信息 ===== */
+  .card-restaurant {
+    padding: 20px 18px 18px;
+    overflow-y: auto;
+    gap: 10px;
+  }
+  .shop-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .shop-name {
+    font-size: 19px;
     font-weight: 800;
     color: #1A1A1A;
     display: flex;
     align-items: baseline;
-    gap: 6px;
-    line-height: 1.2;
+    flex-wrap: wrap;
+    gap: 5px;
   }
-  .info-title .branch {
-    font-size: 13px;
+  .shop-name .branch {
+    font-size: 12px;
     font-weight: 500;
-    color: #999;
+    color: #AAA;
   }
-  .info-subtitle {
-    margin-top: 4px;
-    font-size: 13px;
-    color: #888;
+  .shop-name .tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .shop-price {
+    font-size: 17px;
+    font-weight: 700;
+    color: #FF4458;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .shop-price span { font-size: 11px; font-weight: 400; color: #AAA; }
+
+  .shop-recommender {
+    font-size: 12px;
+    color: #999;
     display: flex;
     align-items: center;
     gap: 5px;
   }
-  .info-subtitle .avatar-mini {
+  .shop-recommender .avt {
     width: 20px; height: 20px;
     border-radius: 50%;
     background: #FF4458;
@@ -168,162 +197,129 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
+    flex-shrink: 0;
   }
-  .info-desc {
-    margin-top: 12px;
-    font-size: 14px;
-    color: #555;
-    line-height: 1.5;
-    border-top: 1px solid #F2F2F2;
-    padding-top: 12px;
-  }
-  .info-dishes {
-    margin-top: 12px;
+
+  .shop-features {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 5px;
   }
-  .info-dish {
+  .shop-feat {
+    font-size: 11px;
+    color: #888;
+    background: #F7F7F7;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .shop-addr {
     font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 14px;
-    background: #F5F5F5;
-    color: #555;
+    color: #AAA;
+    line-height: 1.5;
   }
-  .info-dish.hot {
+
+  .shop-dishes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  .dish {
+    font-size: 12px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    background: #F5F5F5;
+    color: #666;
+  }
+  .dish.hot {
     background: #FFF0F0;
     color: #FF4458;
     font-weight: 600;
   }
-  .info-meta {
-    margin-top: 12px;
-    font-size: 11px;
-    color: #BBB;
+
+  /* 标签色 */
+  .tag-blue   { background: #039BE5 !important; }
+  .tag-red    { background: #FF6B6B !important; }
+  .tag-green  { background: #8BC34A !important; }
+  .tag-orange { background: #FF9800 !important; }
+  .tag-brown  { background: #8D6E63 !important; }
+  .tag-cyan   { background: #00ACC1 !important; }
+
+  /* ===== 进度圆点 ===== */
+  .dots {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    gap: 10px;
-    align-items: center;
+    gap: 6px;
+    z-index: 50;
   }
-  .info-meta .price { color: #FF4458; font-weight: 700; font-size: 13px; }
-
-  /* 类别卡的简介样式 */
-  .cat-info .info-title { font-size: 26px; }
-  .cat-info .info-desc {
-    border-top: none;
-    padding-top: 0;
-    font-size: 15px;
-    color: #666;
-    text-align: center;
-    line-height: 1.7;
-    margin-top: 16px;
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #DDD;
+    transition: background 0.3s, transform 0.3s;
   }
-  .cat-info .info-count {
-    margin: 16px auto 0;
-    text-align: center;
-    font-size: 14px;
-    color: #888;
-    letter-spacing: 1px;
-  }
-
-  /* 滑动状态指示器 */
-  .swipe-hint {
-    position: absolute;
-    top: 30px;
-    padding: 8px 18px;
-    border: 3px solid #fff;
-    border-radius: 8px;
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff;
-    opacity: 0;
-    transition: opacity 0.1s;
-    pointer-events: none;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  .swipe-hint.like {
-    right: 24px;
-    border-color: #4CD964;
-    color: #4CD964;
-    transform: rotate(-15deg);
-  }
-  .swipe-hint.nope {
-    left: 24px;
-    border-color: #FF3B30;
-    color: #FF3B30;
-    transform: rotate(15deg);
+  .dot.on {
+    background: #FF4458;
+    transform: scale(1.4);
   }
 
   /* ===== 底部操作栏 ===== */
   .actions {
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    height: 110px;
+    height: 80px;
     background: #fff;
     border-top: 1px solid #F0F0F0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 22px;
+    gap: 28px;
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 100;
   }
 
   .action-btn {
+    width: 48px; height: 48px;
     border-radius: 50%;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    transition: transform 0.15s, box-shadow 0.15s;
-    border: 1px solid #F0F0F0;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+    border: 1px solid #EEE;
+    font-size: 18px;
+    transition: transform 0.12s, box-shadow 0.12s;
   }
-  .action-btn:active {
-    transform: scale(0.92);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  }
+  .action-btn:active { transform: scale(0.9); }
+  .action-btn.nope { color: #AAA; }
+  .action-btn.like { color: #FF4458; border-color: #FFE0E3; font-size: 20px; }
+  .action-btn.nav { color: #666; }
 
-  .action-btn.small {
-    width: 52px; height: 52px;
-    font-size: 22px;
-  }
-  .action-btn.large {
-    width: 64px; height: 64px;
-    font-size: 26px;
-  }
-
-  .action-btn.nope { color: #FF3B30; }
-  .action-btn.like { color: #FF4458; border-color: #FFE0E3; }
-  .action-btn.center { color: #555; }
-
-  /* 进度提示 */
-  .progress-pill {
+  /* ===== 已看完提示 ===== */
+  .done-msg {
     position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.5);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 12px;
-    backdrop-filter: blur(6px);
-    letter-spacing: 1px;
-  }
-
-  /* 空状态 */
-  .empty-state {
-    text-align: center;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     color: #999;
-    padding: 40px;
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
   }
-  .empty-state.show { display: block; }
-  .empty-state .emoji { font-size: 64px; margin-bottom: 16px; }
+  .done-msg.show { opacity: 1; }
+  .done-msg .emoji { font-size: 60px; margin-bottom: 16px; }
+  .done-msg .txt { font-size: 16px; font-weight: 600; }
+  .done-msg .sub { font-size: 12px; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -337,310 +333,272 @@
 
 <!-- 卡片舞台 -->
 <div class="stage">
-  <div class="card-deck" id="deck">
-    <div class="bg-card deep"></div>
-    <div class="bg-card"></div>
-    <div class="tinder-card" id="card">
-      <div class="progress-pill" id="progressPill"></div>
-      <div class="card-photo" id="cardPhoto">
-        <div class="emoji-big" id="cardEmoji"></div>
-        <div class="photo-badge" id="cardBadge"></div>
-      </div>
-      <div class="swipe-hint like" id="hintLike">想去</div>
-      <div class="swipe-hint nope" id="hintNope">跳过</div>
-      <div class="card-info" id="cardInfo"></div>
-    </div>
+  <div class="card-wrapper" id="wrapper">
+    <div class="card" id="card"></div>
   </div>
 </div>
 
-<!-- 底部操作 -->
+<!-- 进度圆点 -->
+<div class="dots" id="dots"></div>
+
+<!-- 底部操作栏 -->
 <div class="actions">
-  <div class="action-btn small nope" id="btnNope">✕</div>
-  <div class="action-btn large center" id="btnInfo">📍</div>
-  <div class="action-btn small like" id="btnLike">♥</div>
+  <div class="action-btn nav" id="btnPrev">◀</div>
+  <div class="action-btn like" id="btnNav">📍</div>
+  <div class="action-btn nav" id="btnNext">▶</div>
 </div>
 
 <script>
 // ===================== 数据 =====================
 const slides = [
-  // --- 海鲜菜 ---
-  {
-    type: 'category',
-    icon: '🦐', name: '海鲜菜',
-    desc: '新鲜直达 原汁原味<br>金桥商圈品质之选',
-    count: '1家店',
-    color: 'blue'
-  },
-  {
-    type: 'restaurant',
-    icon: '🦐', name: '威海小海鲜', branch: '金高路店', tag: '海鲜',
-    price: 123,
-    recommender: '联名推荐', avatar: '联',
-    addr: '浦东新区金高路2107号（金桥商圈）',
-    mapQuery: '浦东新区金高路2107号威海小海鲜',
-    photo: 'blue',
-    features: ['海鲜新鲜直达', '家庭聚餐', '性价比高'],
-    dishes: [
-      { name: '鸟贝', hl: true },
-      { name: '清蒸海鲜（招牌）', hl: true },
-      { name: '凉拌海肠', hl: true },
-      { name: '舌头鱼' },
-      { name: '白灼虾' },
-      { name: '辣炒蛤蜊' }
+  { type:'category', icon:'🦐', name:'海鲜菜', desc:'新鲜直达 原汁原味<br>金桥商圈品质之选', count:'1家店', color:'blue' },
+  { type:'restaurant', icon:'🦐', name:'威海小海鲜', branch:'金高路店', tag:'海鲜', tagClass:'tag-blue',
+    price:123, recommender:'联名推荐', avatar:'联',
+    addr:'浦东新区金高路2107号（金桥商圈）',
+    mapQuery:'浦东新区金高路2107号威海小海鲜',
+    features:['新鲜直达','家庭聚餐','性价比高'],
+    dishes:[
+      {name:'鸟贝',hl:1},{name:'清蒸海鲜（招牌）',hl:1},{name:'凉拌海肠',hl:1},
+      {name:'舌头鱼'},{name:'白灼虾'},{name:'辣炒蛤蜊'},{name:'海鲜拼盘'}
     ]
   },
-
-  // --- 东北菜 ---
-  {
-    type: 'category',
-    icon: '🍲', name: '东北菜',
-    desc: '锅气十足 量大管饱<br>凌河路 · 上川路一带',
-    count: '3家店',
-    color: 'red'
-  },
-  {
-    type: 'restaurant',
-    icon: '🍲', name: '龙江顺天福', branch: '金桥店', tag: '东北菜',
-    price: 80,
-    recommender: '申小红', avatar: '申',
-    addr: '浦东凌河路（丰华高中东北侧） 🚇12号线杨高北路',
-    mapQuery: '龙江顺天福东北菜凌河路店',
-    photo: 'red',
-    features: ['09:30-24:00', '东北地名包厢'],
-    dishes: [
-      { name: '锅包肉 ¥38', hl: true },
-      { name: '小鸡炖蘑菇 ¥58' },
-      { name: '猪肉炖粉条 ¥52' },
-      { name: '韭菜盒子 ¥26' },
-      { name: '地三鲜 ¥24' },
-      { name: '鹅肉蒸饺', hl: true }
+  { type:'category', icon:'🍲', name:'东北菜', desc:'锅气十足 量大管饱<br>凌河路·上川路一带', count:'3家店', color:'red' },
+  { type:'restaurant', icon:'🍲', name:'龙江顺天福', branch:'金桥店', tag:'东北菜', tagClass:'tag-red',
+    price:80, recommender:'申小红', avatar:'申',
+    addr:'浦东凌河路（丰华高中东北侧）🚇12号线杨高北路',
+    mapQuery:'龙江顺天福东北菜凌河路店',
+    features:['09:30-24:00','东北地名包厢'],
+    dishes:[
+      {name:'锅包肉 ¥38',hl:1},{name:'小鸡炖蘑菇 ¥58'},{name:'猪肉炖粉条 ¥52'},
+      {name:'韭菜盒子 ¥26'},{name:'地三鲜 ¥24'},{name:'鹅肉蒸饺',hl:1}
     ]
   },
-  {
-    type: 'restaurant',
-    icon: '🥘', name: '地锅岁月', branch: '凌河路店', tag: '东北菜',
-    price: 91,
-    recommender: '申小红', avatar: '申',
-    addr: '浦东新区凌河路576号',
-    mapQuery: '浦东新区凌河路576号地锅岁月',
-    photo: 'orange',
-    features: ['无预制菜', '现点现烧', '上海地方菜好评榜'],
-    dishes: [
-      { name: '地锅鸡（招牌）', hl: true },
-      { name: '啤酒鸡排骨双人餐 ¥99', hl: true },
-      { name: '贴饼子' },
-      { name: '+牛蛙' },
-      { name: '+牛肚' },
-      { name: '+牛肉' }
+  { type:'restaurant', icon:'🥘', name:'地锅岁月', branch:'凌河路店', tag:'东北菜', tagClass:'tag-red',
+    price:91, recommender:'申小红', avatar:'申',
+    addr:'浦东新区凌河路576号',
+    mapQuery:'浦东新区凌河路576号地锅岁月',
+    features:['无预制菜','现点现烧','上海地方菜好评榜'],
+    dishes:[
+      {name:'地锅鸡（招牌）',hl:1},{name:'啤酒鸡排骨双人餐 ¥99',hl:1},{name:'贴饼子'},
+      {name:'+牛蛙'},{name:'+牛肚'},{name:'+牛肉'}
     ]
   },
-  {
-    type: 'restaurant',
-    icon: '🔥', name: '薛记·传奇大锅台', branch: '上川路店', tag: '东北菜',
-    price: 106,
-    recommender: '四五六七八次', avatar: '四',
-    addr: '浦东新区曹路镇上川路2257号',
-    mapQuery: '浦东新区曹路镇上川路2257号传奇大锅台',
-    photo: 'brown',
-    features: ['10:00-02:00', '现场选肉现炒', '9店连锁'],
-    dishes: [
-      { name: '招牌地锅鸡（现炒）', hl: true },
-      { name: '地锅鸡双人餐 ¥99', hl: true },
-      { name: '排骨锅' },
-      { name: '贴饼子' },
-      { name: '土鸡现选' }
+  { type:'restaurant', icon:'🔥', name:'薛记·传奇大锅台', branch:'上川路店', tag:'东北菜', tagClass:'tag-red',
+    price:106, recommender:'四五六七八次', avatar:'四',
+    addr:'浦东新区曹路镇上川路2257号',
+    mapQuery:'浦东新区曹路镇上川路2257号传奇大锅台',
+    features:['10:00-02:00','现场选肉现炒','9店连锁'],
+    dishes:[
+      {name:'招牌地锅鸡（现炒）',hl:1},{name:'地锅鸡双人餐 ¥99',hl:1},{name:'排骨锅'},{name:'贴饼子'}
     ]
   },
-
-  // --- 火锅菜 ---
-  {
-    type: 'category',
-    icon: '🐂', name: '火锅菜',
-    desc: '牛骨慢熬 原汤醇厚<br>张江街边烟火小馆',
-    count: '1家店',
-    color: 'brown'
-  },
-  {
-    type: 'restaurant',
-    icon: '🐂', name: '大成牛肉汤馆', branch: '张江店', tag: '牛肉汤',
-    price: 65,
-    recommender: '申小红', avatar: '申',
-    addr: '浦东新区张江镇百业路232号一层',
-    mapQuery: '浦东新区张江镇百业路232号大成牛肉汤馆',
-    photo: 'cyan',
-    features: ['牛骨慢熬原汤', '街边烟火小店', '价格实惠'],
-    dishes: [
-      { name: '牛骨原汤（招牌）', hl: true },
-      { name: '牛肋排锅（灵魂）', hl: true },
-      { name: '牛排牛大骨双拼锅', hl: true },
-      { name: '牛肉丸' },
-      { name: '锅贴' },
-      { name: '烧饼' }
+  { type:'category', icon:'🐂', name:'火锅菜', desc:'牛骨慢熬 原汤醇厚<br>张江街边烟火小馆', count:'1家店', color:'brown' },
+  { type:'restaurant', icon:'🐂', name:'大成牛肉汤馆', branch:'张江店', tag:'牛肉汤', tagClass:'tag-cyan',
+    price:65, recommender:'申小红', avatar:'申',
+    addr:'浦东新区张江镇百业路232号一层',
+    mapQuery:'浦东新区张江镇百业路232号大成牛肉汤馆',
+    features:['牛骨慢熬原汤','街边烟火小店','价格实惠'],
+    dishes:[
+      {name:'牛骨原汤（招牌）',hl:1},{name:'牛肋排锅（灵魂）',hl:1},{name:'牛肉丸'},{name:'锅贴'},{name:'烧饼'}
     ]
   }
 ];
 
 // ===================== 状态 =====================
-let currentIndex = 0;
+let idx = 0;
 const total = slides.length;
 const card = document.getElementById('card');
-const cardPhoto = document.getElementById('cardPhoto');
-const cardEmoji = document.getElementById('cardEmoji');
-const cardBadge = document.getElementById('cardBadge');
-const cardInfo = document.getElementById('cardInfo');
-const progressPill = document.getElementById('progressPill');
-const hintLike = document.getElementById('hintLike');
-const hintNope = document.getElementById('hintNope');
+const dotsEl = document.getElementById('dots');
+
+// 建圆点
+function buildDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === idx ? ' on' : '');
+    dotsEl.appendChild(d);
+  }
+}
+
+function updateDots() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i === idx ? ' on' : '');
+  });
+}
 
 // ===================== 渲染 =====================
-function render() {
-  const s = slides[currentIndex];
+function render(instant = false) {
+  const s = slides[idx];
   if (!s) return;
 
-  // 照片区
-  cardEmoji.textContent = s.icon;
-  cardPhoto.className = 'card-photo photo-' + (s.photo || s.color);
-  cardBadge.textContent = s.type === 'category' ? s.count : s.tag;
-
-  // 信息区
   if (s.type === 'category') {
-    cardInfo.className = 'card-info cat-info';
-    cardInfo.innerHTML = `
-      <div class="info-title">${s.name}</div>
-      <div class="info-desc">${s.desc}</div>
-      <div class="info-count">— ${s.count} —</div>
+    card.className = 'card card-category bg-' + s.color;
+    if (!instant) card.classList.add('hidden');
+    card.offsetHeight; // force reflow
+    card.innerHTML = `
+      <div class="cat-bg">
+        <div class="cat-emoji">${s.icon}</div>
+        <div class="cat-name">${s.name}</div>
+        <div class="cat-desc">${s.desc}</div>
+        <div class="cat-count">— ${s.count} —</div>
+      </div>
     `;
   } else {
-    cardInfo.className = 'card-info';
     const dishesHTML = s.dishes.map(d =>
-      `<span class="info-dish${d.hl ? ' hot' : ''}">${d.name}</span>`
+      `<span class="dish${d.hl ? ' hot' : ''}">${d.name}</span>`
     ).join('');
-    const featuresHTML = s.features.map(f => `<span>· ${f}</span>`).join('');
-    cardInfo.innerHTML = `
-      <div class="info-title">${s.name} <span class="branch">(${s.branch})</span></div>
-      <div class="info-subtitle">
-        <span class="avatar-mini">${s.avatar}</span>
-        <span>${s.recommender} 推荐</span>
+    const featHTML = s.features.map(f =>
+      `<span class="shop-feat">${f}</span>`
+    ).join('');
+    card.className = 'card card-restaurant';
+    if (!instant) card.classList.add('hidden');
+    card.offsetHeight;
+    card.innerHTML = `
+      <div class="shop-header">
+        <div class="shop-name">
+          ${s.name} <span class="branch">(${s.branch})</span>
+          <span class="tag ${s.tagClass}">${s.tag}</span>
+        </div>
+        <div class="shop-price">¥${s.price}<span>/人</span></div>
       </div>
-      <div class="info-meta">
-        <span class="price">¥${s.price}/人</span>
-        <span>· ${s.tag}</span>
-        ${featuresHTML}
+      <div class="shop-recommender">
+        <span class="avt">${s.avatar}</span> ${s.recommender} 推荐
       </div>
-      <div class="info-desc">📍 ${s.addr}</div>
-      <div class="info-dishes">${dishesHTML}</div>
+      <div class="shop-features">${featHTML}</div>
+      <div class="shop-addr">📍 ${s.addr}</div>
+      <div class="shop-dishes">${dishesHTML}</div>
     `;
   }
 
-  // 进度
-  progressPill.textContent = `${currentIndex + 1} / ${total}`;
-
-  // 重置位置
-  card.style.transform = '';
-  card.style.opacity = '1';
+  if (!instant) {
+    requestAnimationFrame(() => {
+      card.classList.remove('hidden');
+      card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    });
+  }
+  updateDots();
 }
 
-// ===================== 滑动 =====================
-let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
+// ===================== 导航（带渐隐 + 循环） =====================
+function goTo(newIdx, dir = 0) {
+  if (newIdx === idx) return;
 
-function onStart(x, y) {
-  startX = x; startY = y; dx = 0; dy = 0; dragging = true;
+  // 渐隐当前
+  card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+  card.style.opacity = '0';
+  card.style.transform = `scale(0.96) translateX(${dir * 30}px)`;
+
+  setTimeout(() => {
+    idx = newIdx;
+    card.style.transition = 'none';
+    card.style.opacity = '0';
+    card.style.transform = `scale(0.96) translateX(${-dir * 30}px)`;
+    render(true);
+    card.offsetHeight;
+
+    // 渐显新卡
+    requestAnimationFrame(() => {
+      card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+      card.style.opacity = '1';
+      card.style.transform = '';
+      setTimeout(() => { card.style.transition = ''; }, 400);
+    });
+  }, 260);
+}
+
+function goNext() {
+  const nxt = (idx + 1) % total;
+  goTo(nxt, 1);
+}
+function goPrev() {
+  const prv = (idx - 1 + total) % total;
+  goTo(prv, -1);
+}
+
+// ===================== 触屏滑动 =====================
+let startX = 0, dx = 0, dragging = false;
+
+card.addEventListener('touchstart', e => {
+  startX = e.touches[0].clientX; dx = 0; dragging = true;
   card.classList.add('swiping');
-}
-function onMove(x, y) {
+}, {passive: true});
+
+card.addEventListener('touchmove', e => {
   if (!dragging) return;
-  dx = x - startX; dy = y - startY;
-  const rot = dx / 15;
-  card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-  // 提示
-  if (dx > 60) hintLike.style.opacity = Math.min(1, (dx-60)/60);
-  else hintLike.style.opacity = 0;
-  if (dx < -60) hintNope.style.opacity = Math.min(1, (-dx-60)/60);
-  else hintNope.style.opacity = 0;
-}
-function onEnd() {
+  dx = e.touches[0].clientX - startX;
+  const limit = 0.5; // 阻止拖动过半
+  const clamped = Math.max(-card.offsetWidth * limit, Math.min(card.offsetWidth * limit, dx)) / (card.offsetWidth * limit);
+  card.style.transform = `translateX(${clamped * 40}px) scale(${1 - Math.abs(clamped) * 0.04})`;
+  card.style.opacity = 1 - Math.abs(clamped) * 0.5;
+}, {passive: true});
+
+card.addEventListener('touchend', () => {
   if (!dragging) return;
   dragging = false;
   card.classList.remove('swiping');
-  hintLike.style.opacity = 0;
-  hintNope.style.opacity = 0;
 
-  if (dx > 120) flyOut('right');
-  else if (dx < -120) flyOut('left');
+  if (dx < -50) goNext();
+  else if (dx > 50) goPrev();
   else {
-    card.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1)';
+    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    card.style.opacity = '1';
     card.style.transform = '';
-    setTimeout(() => card.style.transition = '', 300);
+    setTimeout(() => { card.style.transition = ''; }, 300);
   }
-}
+});
 
-function flyOut(dir) {
-  const sign = dir === 'right' ? 1 : -1;
-  card.style.transition = 'transform 0.35s ease-in, opacity 0.35s ease-in';
-  card.style.transform = `translate(${sign * 500}px, ${dy}px) rotate(${sign * 30}deg)`;
-  card.style.opacity = '0';
-  setTimeout(next, 320);
-}
-
-function next() {
-  if (currentIndex < total - 1) {
-    currentIndex++;
-    render();
-  } else {
-    // 到底了
-    card.style.transform = 'scale(0.9)';
-    card.style.opacity = '0';
-    setTimeout(() => {
-      cardInfo.innerHTML = '<div class="cat-info" style="text-align:center;padding:60px 20px;"><div style="font-size:80px;">🍽️</div><div style="font-size:18px;font-weight:700;color:#333;margin-top:20px;">全部看完啦</div><div style="font-size:13px;color:#999;margin-top:8px;">已浏览全部 ' + total + ' 张卡片</div></div>';
-      cardPhoto.style.display = 'none';
-      card.style.transform = '';
-      card.style.opacity = '1';
-      card.style.transition = 'opacity 0.4s';
-    }, 200);
-  }
-}
-
-// 触屏
-card.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-card.addEventListener('touchmove', e => onMove(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-card.addEventListener('touchend', onEnd);
 // 鼠标
-card.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.clientX, e.clientY); });
-window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-window.addEventListener('mouseup', onEnd);
+card.addEventListener('mousedown', e => {
+  e.preventDefault(); startX = e.clientX; dx = 0; dragging = true;
+  card.classList.add('swiping');
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  dx = e.clientX - startX;
+  const limit = 0.5;
+  const w = card.offsetWidth;
+  const clamped = Math.max(-w * limit, Math.min(w * limit, dx)) / (w * limit);
+  card.style.transform = `translateX(${clamped * 40}px) scale(${1 - Math.abs(clamped) * 0.04})`;
+  card.style.opacity = 1 - Math.abs(clamped) * 0.5;
+});
+window.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  dragging = false;
+  card.classList.remove('swiping');
+  if (dx < -50) goNext();
+  else if (dx > 50) goPrev();
+  else {
+    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    card.style.opacity = '1'; card.style.transform = '';
+    setTimeout(() => { card.style.transition = ''; }, 300);
+  }
+});
 
-// ===================== 操作按钮 =====================
-document.getElementById('btnNope').addEventListener('click', () => {
-  if (currentIndex >= total) return;
-  dx = -200; dy = 0; flyOut('left');
-});
-document.getElementById('btnLike').addEventListener('click', () => {
-  if (currentIndex >= total) return;
-  dx = 200; dy = 0; flyOut('right');
-});
-document.getElementById('btnInfo').addEventListener('click', () => {
-  const s = slides[currentIndex];
-  if (!s || s.type !== 'restaurant') return;
-  window.open(`https://www.amap.com/search?query=${encodeURIComponent(s.mapQuery)}`, '_blank');
+// ===================== 按钮 =====================
+document.getElementById('btnPrev').addEventListener('click', goPrev);
+document.getElementById('btnNext').addEventListener('click', goNext);
+document.getElementById('btnNav').addEventListener('click', () => {
+  const s = slides[idx];
+  if (s.type === 'restaurant') {
+    window.open(`https://www.amap.com/search?query=${encodeURIComponent(s.mapQuery)}`, '_blank');
+  }
 });
 
-// 顶栏按钮（占位）
 document.getElementById('menuBtn').addEventListener('click', () => {
-  alert('🍽️ 好友力荐\n共 ' + total + ' 张卡片\n左右滑动浏览');
+  alert('🍽️ 好友力荐\n共 ' + total + ' 张卡片\n左右滑动浏览\n末页自动回到首页');
 });
 document.getElementById('shareBtn').addEventListener('click', () => {
   const url = location.href;
   if (navigator.share) {
     navigator.share({ title: '好友力荐餐厅', url });
   } else {
-    navigator.clipboard.writeText(url).then(() => {
-      alert('链接已复制到剪贴板');
-    }).catch(() => alert(url));
+    navigator.clipboard.writeText(url).then(() => alert('链接已复制')).catch(() => alert(url));
   }
 });
 
 // 启动
-render();
+buildDots();
+render(true);
 </script>
 </body>
 </html>
