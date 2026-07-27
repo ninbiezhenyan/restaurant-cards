@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>好友推荐餐厅 · 滑动浏览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFF0E6 100%);
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-size: 26px;
+    color: #3D2817;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+  }
+  .header p {
+    font-size: 12px;
+    color: #B08060;
+    letter-spacing: 1px;
+  }
+
+  /* ===== 分类标签栏 ===== */
+  .category-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 0 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    max-width: 700px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  .category-bar::-webkit-scrollbar { height: 0; }
+
+  .cat-card {
+    flex: 0 0 auto;
+    min-width: 110px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(180,120,80,.08);
+    text-align: center;
+    cursor: pointer;
+    transition: all .25s ease;
+    border: 2px solid transparent;
+    scroll-snap-align: start;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(180,120,80,.14); }
+  .cat-card.active {
+    border-color: #FF6B6B;
+    box-shadow: 0 4px 18px rgba(255,107,107,.15);
+  }
+
+  .cat-emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+  .cat-name { font-size: 13px; font-weight: 700; color: #3D2817; }
+  .cat-count { font-size: 10px; color: #AAA; margin-top: 2px; }
+
+  /* ===== 轮播主容器 ===== */
+  .carousel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: 20px;
+  }
+
+  /* 卡片视窗 */
+  .carousel-viewport {
+    overflow: hidden;
+    border-radius: 20px;
+    touch-action: pan-y;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: transform;
+  }
+
+  /* ===== 单张餐厅卡片 ===== */
+  .slide-card {
+    flex: 0 0 100%;
+    width: 100%;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .slide-stripe { height: 6px; }
+  .stripe-red    { background: linear-gradient(90deg, #FF6B6B, #FF8E53); }
+  .stripe-green  { background: linear-gradient(90deg, #6B9E5A, #8BC34A); }
+  .stripe-orange { background: linear-gradient(90deg, #FF9800, #FFB74D); }
+  .stripe-blue   { background: linear-gradient(90deg, #039BE5, #4FC3F7); }
+  .stripe-brown  { background: linear-gradient(90deg, #8D6E63, #BCAAA4); }
+
+  .slide-body {
+    padding: 18px 20px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .card-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2C1810;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .card-name .emoji { font-size: 22px; }
+
+  .branch-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #AAA;
+    white-space: nowrap;
+  }
+
+  .cuisine-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    padding: 2px 9px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .tag-red  { background: #FF6B6B; }
+  .tag-green { background: #8BC34A; }
+  .tag-orange { background: #FF9800; }
+  .tag-blue  { background: #039BE5; }
+  .tag-brown { background: #8D6E63; }
+
+  .price-badge {
+    font-size: 15px;
+    font-weight: 700;
+    color: #E65100;
+    white-space: nowrap;
+  }
+  .price-badge small { font-weight: 400; font-size: 11px; color: #AAA; }
+
+  .stars {
+    font-size: 14px;
+    color: #F5A623;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .recommender-row {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .recommender-row .avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #FFE0B2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #E65100;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .recommender-name { font-weight: 600; color: #666; }
+
+  .addr {
+    font-size: 12px;
+    color: #AAA;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    display: flex;
+    gap: 4px;
+  }
+  .addr .ico { flex-shrink: 0; }
+
+  .sep {
+    height: 1px;
+    background: #F0F0F0;
+    margin: 0 0 10px;
+  }
+
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .feat {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .feat-warm { background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; }
+  .feat-cool { background: #F1F8E9; color: #33691E; border: 1px solid #A5D6A7; }
+  .feat-sea  { background: #E1F5FE; color: #01579B; border: 1px solid #81D4FA; }
+  .feat-meat { background: #EFEBE9; color: #4E342E; border: 1px solid #BCAAA4; }
+
+  .dishes-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #AAA;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .dishes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1;
+  }
+
+  .dish {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .dish-red    { background: #FFF0F0; color: #C62828; border: 1px solid #FFCDD2; }
+  .dish-red.hl { background: #FFE0E0; font-weight: 600; }
+  .dish-green  { background: #F1F8E9; color: #33691E; border: 1px solid #C5E1A5; }
+  .dish-green.hl { background: #DCEED0; font-weight: 600; }
+  .dish-orange { background: #FFF8E1; color: #E65100; border: 1px solid #FFE0B2; }
+  .dish-orange.hl { background: #FFECD2; font-weight: 600; }
+  .dish-blue   { background: #E1F5FE; color: #01579B; border: 1px solid #B3E5FC; }
+  .dish-blue.hl { background: #CAEEFE; font-weight: 600; }
+  .dish-brown  { background: #EFEBE9; color: #4E342E; border: 1px solid #D7CCC8; }
+  .dish-brown.hl { background: #E5DDD8; font-weight: 600; }
+
+  /* ===== 导航控件 ===== */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+
+  .arrow-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(180,120,80,.14);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #E65100;
+    transition: all .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .arrow-btn:hover { background: #FFF3E0; }
+  .arrow-btn:active { transform: scale(.9); }
+
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #DDD;
+    transition: all .3s;
+  }
+  .dot.active {
+    background: #FF6B6B;
+    width: 22px;
+    border-radius: 10px;
+  }
+
+  .card-counter {
+    font-size: 12px;
+    color: #BBB;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: #CCC;
+  }
+
+  /* empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #CCC;
+    font-size: 14px;
+    user-select: none;
+  }
+
+  @media (max-width: 500px) {
+    .category-bar { justify-content: flex-start; padding-left: 8px; }
+    .cat-card { min-width: 95px; padding: 10px 12px; }
+    .cat-emoji { font-size: 24px; }
+    .cat-name { font-size: 11px; }
+    .carousel-wrapper { max-width: 100%; }
+    .slide-body { padding: 14px 16px 18px; }
+    .card-name { font-size: 16px; }
+    .card-name .emoji { font-size: 20px; }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍽️ 好友推荐餐厅</h1>
+  <p>群友力荐 · 五店合集 · 滑动切换浏览</p>
+</div>
+
+<!-- 分类标签 -->
+<div class="category-bar" id="categoryBar"></div>
+
+<!-- 轮播 -->
+<div class="carousel-wrapper" id="carouselWrapper">
+  <div class="carousel-viewport" id="viewport">
+    <div class="carousel-track" id="track"></div>
+  </div>
+</div>
+
+<!-- 导航栏 -->
+<div class="nav-row">
+  <button class="arrow-btn" id="prevBtn">◀</button>
+  <div class="dots" id="dots"></div>
+  <button class="arrow-btn" id="nextBtn">▶</button>
+</div>
+<div class="card-counter" id="counter"></div>
+
+<div class="footer-note">
+  💡 滑动或点击箭头切换 · 点击卡片可在高德地图搜索位置
+</div>
+
+<script>
+// ===================== 数据 =====================
+const categories = [
+  {
+    id: 'seafood',
+    emoji: '🦐',
+    name: '海鲜菜',
+    stripe: 'stripe-blue',
+    tagClass: 'tag-blue',
+    dishClass: 'dish-blue',
+    featClass: 'feat-sea',
+    restaurants: [
+      {
+        name: '威海小海鲜', branch: '金高路店',
+        icon: '🦐', tag: '海鲜',
+        price: 123,
+        recommender: '联名',
+        avatar: '联',
+        addr: '浦东新区金高路2107号（金桥商圈）',
+        mapQuery: '浦东新区金高路2107号威海小海鲜',
+        features: ['🐟 海鲜新鲜直达','👨‍👩‍👧 家庭聚餐','💯 性价比高'],
+        dishes: [
+          { name: '🐚 鸟贝', hl: true },
+          { name: '清蒸海鲜（招牌）', hl: true },
+          { name: '凉拌海肠', hl: true },
+          { name: '舌头鱼', hl: false },
+          { name: '白灼虾', hl: false },
+          { name: '辣炒蛤蜊', hl: false },
+          { name: '海蛎子', hl: false },
+          { name: '海鲜拼盘', hl: false }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dongbei',
+    emoji: '🍲',
+    name: '东北菜',
+    stripe: 'stripe-red',
+    tagClass: 'tag-red',
+    dishClass: 'dish-red',
+    featClass: 'feat-warm',
+    restaurants: [
+      {
+        name: '龙江顺天福', branch: '金桥店',
+        icon: '🍲', tag: '东北菜',
+        price: 80,
+        recommender: '申小红',
+        avatar: '申',
+        addr: '浦东凌河路（丰华高中东北侧） 🚇12号线杨高北路',
+        mapQuery: '龙江顺天福东北菜凌河路店',
+        features: ['🕘 09:30-24:00','🏠 东北地名包厢'],
+        dishes: [
+          { name: '锅包肉 ¥38', hl: true },
+          { name: '小鸡炖蘑菇 ¥58', hl: false },
+          { name: '猪肉炖粉条 ¥52', hl: false },
+          { name: '韭菜盒子 ¥26', hl: false },
+          { name: '地三鲜 ¥24', hl: false },
+          { name: '鹅肉蒸饺', hl: true },
+          { name: '大骨棒炖酸菜', hl: false }
+        ]
+      },
+      {
+        name: '地锅岁月', branch: '凌河路店',
+        icon: '🥘', tag: '东北菜',
+        price: 91,
+        recommender: '申小红',
+        avatar: '申',
+        addr: '浦东新区凌河路576号（原地锅壹號）',
+        mapQuery: '浦东新区凌河路576号地锅岁月',
+        features: ['🚫 无预制菜','👨‍🍳 现点现烧','🏅 上海地方菜好评榜'],
+        extraLabel: '🍗 推荐菜 · ⭐ 大众4.1 | 🎵 抖音4.5',
+        dishClass: 'dish-green',
+        dishes: [
+          { name: '🔥 地锅鸡（招牌）', hl: true },
+          { name: '🍺 啤酒鸡排骨双人餐 ¥99', hl: true },
+          { name: '贴饼子', hl: false },
+          { name: '+牛蛙', hl: false },
+          { name: '+牛肚', hl: false },
+          { name: '+牛肉', hl: false },
+          { name: '+昂刺鱼', hl: false }
+        ]
+      },
+      {
+        name: '薛记·传奇大锅台', branch: '上川路店',
+        icon: '🔥', tag: '东北菜',
+        price: 106,
+        recommender: '四五六七八次',
+        avatar: '四',
+        addr: '浦东新区曹路镇上川路2257号',
+        mapQuery: '浦东新区上川路2257号传奇大锅台',
+        features: ['🕘 10:00-02:00','🔪 现场选肉现炒','🏪 9店连锁'],
+        dishClass: 'dish-orange',
+        dishes: [
+          { name: '🐔 招牌地锅鸡（现炒）', hl: true },
+          { name: '💰 地锅鸡双人餐 ¥99', hl: true },
+          { name: '排骨锅', hl: false },
+          { name: '贴饼子', hl: false },
+          { name: '土鸡现选', hl: false },
+          { name: '量大管饱', hl: false }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'hotpot',
+    emoji: '🐂',
+    name: '火锅菜',
+    stripe: 'stripe-brown',
+    tagClass: 'tag-brown',
+    dishClass: 'dish-brown',
+    featClass: 'feat-meat',
+    restaurants: [
+      {
+        name: '大成牛肉汤馆', branch: '张江店',
+        icon: '🐂', tag: '牛肉汤',
+        price: 65,
+        recommender: '申小红',
+        avatar: '申',
+        addr: '浦东新区张江镇百业路232号一层',
+        mapQuery: '浦东新区张江镇百业路232号大成牛肉汤馆',
+        features: ['🦴 牛骨慢熬原汤','🏠 街边烟火小店','💰 价格实惠'],
+        dishes: [
+          { name: '🦴 牛骨原汤（招牌）', hl: true },
+          { name: '🥩 牛肋排锅（灵魂）', hl: true },
+          { name: '🍲 牛排牛大骨双拼锅', hl: true },
+          { name: '牛肉丸', hl: false },
+          { name: '锅贴', hl: false },
+          { name: '烧饼', hl: false }
+        ]
+      }
+    ]
+  }
+];
+
+// ===================== 构建卡片 HTML =====================
+function buildCardHTML(r, cat) {
+  const stripe = cat.stripe;
+  const tagClass = cat.tagClass;
+  const featClass = cat.featClass;
+  const dishClass = r.dishClass || cat.dishClass;
+  const extraLabel = r.extraLabel || '🍖 推荐菜';
+
+  const dishesHTML = r.dishes.map(d =>
+    `<span class="dish ${dishClass}${d.hl ? ' hl' : ''}">${d.name}</span>`
+  ).join('\n            ');
+
+  const featuresHTML = r.features.map(f =>
+    `<span class="feat ${featClass}">${f}</span>`
+  ).join('\n            ');
+
+  return `
+  <div class="slide-card" data-map="${r.mapQuery}">
+    <div class="slide-stripe ${stripe}"></div>
+    <div class="slide-body">
+      <div class="title-row">
+        <div class="card-name"><span class="emoji">${r.icon}</span>${r.name}<span class="branch-name">(${r.branch})</span><span class="cuisine-tag ${tagClass}">${r.tag}</span></div>
+        <div class="price-badge">¥${r.price}<small>/人</small></div>
+      </div>
+      <div class="stars">★★★★★</div>
+      <div class="recommender-row">
+        <span class="avatar">${r.avatar}</span><span class="recommender-name">${r.recommender}</span> 推荐
+      </div>
+      <div class="addr"><span class="ico">📍</span>${r.addr}</div>
+      <div class="features">${featuresHTML}</div>
+      <div class="sep"></div>
+      <div class="dishes-label">${extraLabel}</div>
+      <div class="dishes">${dishesHTML}</div>
+    </div>
+  </div>`;
+}
+
+// ===================== 状态 =====================
+let currentCatIndex = 0;
+let currentSlideIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+let isDragging = false;
+
+const catBar = document.getElementById('categoryBar');
+const track = document.getElementById('track');
+const dotsEl = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const viewport = document.getElementById('viewport');
+
+// ===================== 渲染分类标签 =====================
+function renderCategoryBar() {
+  catBar.innerHTML = categories.map((cat, i) => `
+    <div class="cat-card${i === currentCatIndex ? ' active' : ''}" data-index="${i}">
+      <span class="cat-emoji">${cat.emoji}</span>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-count">${cat.restaurants.length}家</div>
+    </div>
+  `).join('');
+
+  catBar.querySelectorAll('.cat-card').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.index);
+      if (idx !== currentCatIndex) {
+        currentCatIndex = idx;
+        currentSlideIndex = 0;
+        renderAll();
+      }
+    });
+  });
+}
+
+// ===================== 渲染轮播 =====================
+function renderTrack() {
+  const cat = categories[currentCatIndex];
+  const cardsHTML = cat.restaurants.map(r => buildCardHTML(r, cat)).join('');
+  track.innerHTML = cardsHTML;
+
+  // 绑定点击事件
+  track.querySelectorAll('.slide-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const mapQuery = card.dataset.map;
+      window.open(`https://www.amap.com/search?query=${encodeURIComponent(mapQuery)}`, '_blank');
+    });
+  });
+
+  updatePosition(false);
+}
+
+function renderDots() {
+  const count = categories[currentCatIndex].restaurants.length;
+  if (count <= 1) {
+    dotsEl.innerHTML = '';
+    counterEl.textContent = '';
+    prevBtn.style.visibility = 'hidden';
+    nextBtn.style.visibility = 'hidden';
+    return;
+  }
+
+  prevBtn.style.visibility = 'visible';
+  nextBtn.style.visibility = 'visible';
+
+  dotsEl.innerHTML = Array.from({length: count}, (_, i) =>
+    `<div class="dot${i === currentSlideIndex ? ' active' : ''}"></div>`
+  ).join('');
+
+  counterEl.textContent = `${currentSlideIndex + 1} / ${count}`;
+}
+
+function updatePosition(animate = true) {
+  if (!animate) track.style.transition = 'none';
+  track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+  if (!animate) {
+    // force reflow
+    track.offsetHeight;
+    track.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+  }
+}
+
+function renderAll() {
+  renderCategoryBar();
+  renderTrack();
+  renderDots();
+}
+
+// ===================== 导航 =====================
+function goNext() {
+  const count = categories[currentCatIndex].restaurants.length;
+  if (currentSlideIndex < count - 1) {
+    currentSlideIndex++;
+    updatePosition();
+    renderDots();
+  }
+}
+
+function goPrev() {
+  if (currentSlideIndex > 0) {
+    currentSlideIndex--;
+    updatePosition();
+    renderDots();
+  }
+}
+
+prevBtn.addEventListener('click', goPrev);
+nextBtn.addEventListener('click', goNext);
+
+// ===================== 触屏滑动 =====================
+viewport.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  isDragging = true;
+}, { passive: true });
+
+viewport.addEventListener('touchmove', (e) => {
+  if (!isDragging) return;
+  touchEndX = e.touches[0].clientX;
+  // 轻微跟手效果
+  const diff = touchEndX - touchStartX;
+  const count = categories[currentCatIndex].restaurants.length;
+  if (count <= 1) return;
+
+  const clamped = currentSlideIndex === 0 && diff > 0 ? 0 :
+                  currentSlideIndex >= count - 1 && diff < 0 ? 0 : diff;
+  track.style.transition = 'none';
+  track.style.transform = `translateX(calc(-${currentSlideIndex * 100}% + ${clamped}px))`;
+}, { passive: true });
+
+viewport.addEventListener('touchend', () => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const diff = touchEndX - touchStartX;
+  const threshold = 50;
+
+  track.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+
+  if (diff < -threshold) {
+    goNext();
+  } else if (diff > threshold) {
+    goPrev();
+  } else {
+    updatePosition();
+  }
+});
+
+// 鼠标拖拽支持（桌面端）
+viewport.addEventListener('mousedown', (e) => {
+  touchStartX = e.clientX;
+  isDragging = true;
+  e.preventDefault();
+});
+
+viewport.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  touchEndX = e.clientX;
+});
+
+viewport.addEventListener('mouseup', () => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const diff = touchEndX - touchStartX;
+  const threshold = 50;
+
+  track.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+
+  if (diff < -threshold) goNext();
+  else if (diff > threshold) goPrev();
+  else updatePosition();
+});
+
+viewport.addEventListener('mouseleave', () => {
+  if (isDragging) {
+    isDragging = false;
+    updatePosition();
+  }
+});
+
+// ===================== 键盘导航 =====================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') goPrev();
+  if (e.key === 'ArrowRight') goNext();
+});
+
+// ===================== 初始渲染 =====================
+renderAll();
+</script>
+
+</body>
+</html>
